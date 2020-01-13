@@ -1,0 +1,119 @@
+function makeForm() {
+    var x=document.createElement("INPUT");
+    x.setAttribute('type','text');
+    x.setAttribute('value','Nume utilizator');
+    x.id="nume_field";
+    document.querySelector("#form_register").appendChild(x);
+    x=document.createElement("INPUT");
+    x.setAttribute('type','password');
+    x.setAttribute('value','parola');
+    x.id="parola_field";
+    document.querySelector("#form_register").appendChild(x);
+    x=document.createElement("INPUT");
+    x.setAttribute('type','email');
+    x.setAttribute('value','lam@yahoo.com');
+    x.id="email_field";
+    document.querySelector("#form_register").appendChild(x);
+    x=document.createElement("div");
+    x.innerHTML="Accept Reclame:";
+    document.querySelector("#form_register").appendChild(x);
+    x=document.createElement("INPUT");
+    x.setAttribute('type','checkbox');
+    document.querySelector("#form_register").appendChild(x);
+    x=document.createElement("SELECT");
+    x.setAttribute('id','select_field');
+    document.querySelector("#form_register").appendChild(x);
+    x=document.createElement("input");
+    x.type="radio";
+    x.setAttribute('value','m');
+    y=document.createTextNode("m");
+    document.querySelector("#form_register").appendChild(x);
+    document.querySelector("#form_register").appendChild(y);
+    x=document.createElement("input");
+    x.type="radio";
+    x.setAttribute('value','f');
+    y=document.createTextNode('f');
+    document.querySelector("#form_register").appendChild(x);
+    document.querySelector("#form_register").appendChild(y);
+    x=document.createElement("input");
+    x.type="submit";
+    x.innerHTML="salveaza";
+    x.addEventListener("click", function(e) {afisUsers(e);})
+    document.querySelector('#form_register').appendChild(x);
+}
+
+makeForm();
+function afisUsers(e) {
+    //face ca formul sa nu se submituiasca ci 
+    //fac eu ce vreau acum
+    e.preventDefault();
+    var x=document.getElementById('parola_field').value;
+   const regex=new RegExp('(?=.*[^&*<>{}!@#%?])(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9^&*<>{}!@#%?]{8,}');
+   if(regex.test(x)&&x.length>=8) // testez sa aiba low letter, capital letter, special char & cifra
+      {
+        //document.getElementById('form_register').style.display="none";
+      //document.getElementById('reg_buton').style.display="none";
+ 
+      //cererea ajax de verificare daca userul se afla deja in baza de date
+
+      var xhr=new XMLHttpRequest();
+      var lista_utilizatori=[];
+      xhr.onload=function(){
+      if(xhr.status==200){
+        lista_utilizatori=JSON.parse(xhr.responseText);
+      }
+       ok=0;
+      for(let i=0;i<lista_utilizatori.length;i++)
+      {
+        if(lista_utilizatori[i].name==document.getElementById('nume_field'))
+        {
+          var x=document.createElement('h3');
+          x.innerHTML="V-am gasit deja in baza noastra de date, spor la cafeluta!";
+          x.style.position="absolute";
+          x.style.left="0vw";
+          x.style.top="5vh";
+          x.style.fontSize="1vw";
+          document.body.appendChild(x);
+          ok=1;
+          break;
+        }
+      }
+      if(ok==0)
+      {
+        var x=document.createElement('h3');
+        x.innerHTML="V-am inregistrat in baza de date,cumparaturi placute!";
+        x.style.position="absolute";
+        x.style.left="0vw";
+        x.style.top="5vh";
+        x.style.fontSize="1vw";
+        document.body.appendChild(x);
+      }
+    }
+
+    xhr.open('GET', 'https://jsonplaceholder.typicode.com/users'); // pagina asta e given si de-aici luam userii
+    xhr.send();
+      localStorage.setItem('nume',document.getElementById('nume_field').value); 
+      localStorage.setItem('consum',0);
+      var infoLog=document.createElement("div");
+      infoLog.id="info_log";
+    
+      document.getElementById('formular_wrapper').style.opacity=0;
+    
+      var interv=setInterval(function() {
+        if (document.getElementById('formular_wrapper').style.opacity==0) {
+            document.getElementById('formular_wrapper').remove();
+            document.getElementById("container_princip").appendChild(infoLog);
+            document.getElementById('info_log').innerHTML=localStorage.getItem('nume')+" ai cheltuit:"+localStorage.getItem('consum')+'$';
+        }
+      }, 10);
+     /* while(document.querySelector("#formular_wrapper") != null) {
+          console.log("gasesc");
+      } */
+      setTimeout(function() {
+        clearInterval(interv);
+      }, 1000);
+    }
+    else {
+      alert('Parola trebuie sa contina litere mari, mici, o cifra si un caracter special! Pentru securitate ;) ','Incearca din nou!');
+  }
+}
